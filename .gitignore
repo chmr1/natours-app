@@ -1,0 +1,17 @@
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build
+
+# Log files
+npm-debug.log
+
+# local env files
+config.env
+
+# Dependency directories
+node_modules
+
+# OSX system files, the bane of our existence
+.DS_Store
+
+# Editor directories and files
+.vscode
