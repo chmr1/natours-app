@@ -5,7 +5,7 @@ dotenv.config({ path: './config.env' });
 
 const app = require('./app');
 
-process.env.TZ = 'America/Sao_Paulo';
+//process.env.TZ = 'America/Sao_Paulo';
 
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
