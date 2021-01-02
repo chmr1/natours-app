@@ -23,7 +23,7 @@ mongoose
 
 // lsof -i tcp:3000
 // npx kill-port 3000 8000
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
