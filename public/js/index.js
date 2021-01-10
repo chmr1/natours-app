@@ -88,3 +88,6 @@ if (bookBtn) {
     }
   });
 }
+
+const alertMessage = document.querySelector('body');
+if (alertMessage) showAlert('success', alertMessage, 10);
