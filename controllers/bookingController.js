@@ -8,6 +8,8 @@ const catchAsync = require('../utils/catchAsync');
 const ENV_DEV = process.env.NODE_ENV_DEV;
 
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
+  console.log(ENV_DEV);
+
   // 1) Get the currently booked tour
   const tour = await Tour.findById(req.params.tourId);
 
@@ -65,8 +67,7 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
 const createBookingCheckout = async (session) => {
   const tour = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email })).id;
-  const price = session.line_items[0].price_data.unit_amount / 100;
-  console.log('createBookingCheckout', tour, user, price);
+  const price = 100000; //session.display_items[0].price_data.unit_amount / 100;
   await Booking.create({ tour, user, price });
 };
 
@@ -83,8 +84,6 @@ exports.webhookCheckout = (req, res, next) => {
   } catch (err) {
     return res.status(400).send(`Webhook error: ${err.message}`);
   }
-
-  console.log(event);
 
   if (event.type === 'checkout.session.completed')
     createBookingCheckout(event.data.object);
