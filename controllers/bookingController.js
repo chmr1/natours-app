@@ -5,18 +5,22 @@ const Booking = require('../models/bookingModel');
 const factory = require('./handleFactory');
 const catchAsync = require('../utils/catchAsync');
 
+const ENV_DEV = process.env.NODE_ENV_DEV;
+
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1) Get the currently booked tour
   const tour = await Tour.findById(req.params.tourId);
 
-  // 2) Create checkou session
+  // 2) Setting the environment
+  const urlSufix = ENV_DEV
+    ? `?tour=${req.params.tourId}&user=${req.user.id}&price=${tour.price}`
+    : `my-tours?alert=booking`;
+
+  // 3) Create checkou session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     mode: 'payment',
-    // success_url: `${req.protocol}://${req.get('host')}/?tour=${
-    //   req.params.tourId
-    // }&user=${req.user.id}&price=${tour.price}`,
-    success_url: `${req.protocol}://${req.get('host')}/my-tours?alert=booking`,
+    success_url: `${req.protocol}://${req.get('host')}/${urlSufix}`,
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
     customer_email: req.user.email,
     client_reference_id: req.params.tourId,
@@ -45,14 +49,18 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
-// exports.createBookingCheckout = catchAsync(async (req, res, next) => {
-//   const { tour, user, price } = req.query;
+exports.createBookingCheckout = catchAsync(async (req, res, next) => {
+  if (!ENV_DEV) {
+    return next();
+  }
 
-//   if (!tour && !user && !price) return next();
-//   await Booking.create({ tour, user, price });
+  const { tour, user, price } = req.query;
 
-//   res.redirect(req.originalUrl.split('?')[0]);
-// });
+  if (!tour && !user && !price) return next();
+  await Booking.create({ tour, user, price });
+
+  res.redirect(req.originalUrl.split('?')[0]);
+});
 
 const createBookingCheckout = async (session) => {
   const tour = session.client_reference_id;

@@ -31,7 +31,7 @@ mongoose
 // npx kill-port 3000 8000
 const port = process.env.PORT;
 const server = app.listen(port, () => {
-  console.log(`App running on port 3000...`);
+  console.log(`App running on port ${port}...`);
 });
 
 process.on('unhandledRejection', (err) => {
