@@ -1,9 +1,15 @@
 /* eslint-disable */
 import '@babel/polyfill';
+import axios from 'axios';
+
 import { displayMap } from './mapBox';
 import { login, logout } from './login';
 import { updateSettings } from './updateSettings';
-import { bookTour } from './stripe';
+import { showAlert } from './alert';
+
+var stripe = Stripe(
+  'pk_test_51I5bDJGoLbaErS5OiP2NuyDCcf2GKJn8grvPbczt6dE0CTtT6tUrguh3Hf99x0ICFJ5ITodfcJkWIyai63ekONiR00zcBM6dkN'
+);
 
 // DOM ELEMENTS
 const mapBox = document.getElementById('map');
@@ -64,9 +70,21 @@ if (userPasswordForm) {
 }
 
 if (bookBtn) {
-  bookBtn.addEventListener('click', (e) => {
+  bookBtn.addEventListener('click', async (e) => {
     e.target.textContent = 'Processing...';
     const { tourId } = e.target.dataset;
-    bookTour(tourId);
+    try {
+      // 1) Get checkout session from API
+      const session = await axios(
+        `/api/v1/bookings/checkout-session/${tourId}`
+      );
+
+      // 2) Create checkout form + change credit card
+      await stripe.redirectToCheckout({
+        sessionId: session.data.session.id,
+      });
+    } catch (err) {
+      showAlert('error', err);
+    }
   });
 }
